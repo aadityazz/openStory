@@ -29,7 +29,7 @@ export default function EditPost() {
       id,
     };
     try {
-      const response = await fetch(`http://localhost:4000/post/${id}`, {
+      const response = await fetch(`https://openstories.onrender.com/post/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

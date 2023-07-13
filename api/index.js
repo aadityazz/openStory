@@ -42,7 +42,7 @@ let generateURL = null;
 const salt = bcrypt.genSaltSync(10);
 const secret = process.env.SECRET;
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({ credentials: true, origin: 'https://open-stories-fte-demo.netlify.app/' }));
 app.use(express.json());
 app.use(cookieParser());
 
