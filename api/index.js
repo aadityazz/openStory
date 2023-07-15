@@ -45,11 +45,11 @@ const uploadMiddleware = multer({
 
 
 const salt = bcrypt.genSaltSync(10);
-const secret = Process.env.SECRET;
+const secret = "asdfe45we45w345wegw345werjktjwertkj";
 
 const app = express();
 
-app.use(cors({ credentials: true, origin: 'https://open-stories-fte-demo.netlify.app/' }));
+app.use(cors({ credentials: true, origin: 'https://open-stories-fte-demo.netlify.app' }));
 app.use(express.json());
 app.use(cookieParser());
 
