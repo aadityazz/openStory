@@ -78,9 +78,16 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const userDoc = await User.findOne({ username });
+
+  if (!userDoc) {
+    // User not found
+    return res.status(400).json('User not found');
+  }
+
   const passOk = bcrypt.compareSync(password, userDoc.password);
+
   if (passOk) {
-    // logged in
+    // Password is correct, generate and set JWT token as a cookie
     jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
       if (err) throw err;
       res.cookie('token', token).json({
@@ -89,9 +96,11 @@ app.post('/login', async (req, res) => {
       });
     });
   } else {
-    res.status(400).json('wrong credentials');
+    // Password is incorrect
+    res.status(400).json('Wrong credentials');
   }
 });
+
 
 app.get('/profile', (req, res) => {
   const { token } = req.cookies;
