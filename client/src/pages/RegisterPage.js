@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {toast} from "react-toastify";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -11,9 +12,9 @@ export default function RegisterPage() {
       headers: {'Content-Type':'application/json'},
     });
     if (response.status === 200) {
-      alert('registration successful');
+      toast.success('registration successful');
     } else {
-      alert('registration failed');
+      toast.error('registration failed');
     }
   }
   return (

@@ -4,9 +4,12 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const Post = require('./models/Post');
 const bcrypt = require('bcryptjs');
-const app = express();
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+
+
+const fs = require("fs");
+const Process = require("process");
 
 const { Configuration, OpenAIApi } = require('openai');
 const cloudinary = require('cloudinary').v2;
@@ -14,17 +17,20 @@ const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET
+  cloud_name: Process.env.CLOUD_NAME ,
+  api_key: Process.env.API_KEY ,
+  api_secret: Process.env.API_SECRET ,
 });
 
 
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const fs = require("fs");
-const Process = require("process");
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+});
+
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -37,20 +43,23 @@ const uploadMiddleware = multer({
   },
 });
 
-let generateURL = null;
 
 const salt = bcrypt.genSaltSync(10);
-const secret = process.env.SECRET;
+const secret = Process.env.SECRET;
+
+const app = express();
 
 app.use(cors({ credentials: true, origin: 'https://open-stories-fte-demo.netlify.app/' }));
 app.use(express.json());
 app.use(cookieParser());
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: Process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
+
+let generatedURL = null;
 
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
@@ -100,21 +109,27 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
   try {
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, async (err, info) => {
-      if (err) throw err;
-
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to verify token' });
+      }
+      console.log(req.body)
       const { title, summary, content } = req.body;
       const file = req.file;
+      const generatedImage = `data:image/jpeg;base64,${req.body.generatedImage}`; // Get the generated image URL from the request
 
-      let cover = null;
-      const photoUrl = (file)? await cloudinary.uploader.upload(file.path):  await cloudinary.uploader.upload(`data:image/jpeg;base64,${generateURL}`);
+      let cover;
 
-      if(photoUrl == null){
-        const photoUrl = await cloudinary.uploader.upload('api/error.png');
+      if (file) {
+        // If the file is present, upload it to Cloudinary and get the URL
+        const photoUrl = await cloudinary.uploader.upload(file.path);
+        cover = photoUrl.url;
+      } else if (generatedImage) {
+        // If the generatedImage is present, use it directly as the cover URL
+        cover = generatedImage;
+      } else {
+        return res.status(400).json({ message: 'Missing required parameter - file or generatedImage' });
       }
-
-      cover = photoUrl.url;
-
-
 
       const postDoc = await Post.create({
         title,
@@ -131,6 +146,7 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
     res.status(500).json({ message: 'Failed to create post' });
   }
 });
+
 
 
 
@@ -180,20 +196,18 @@ app.use('/api/v1/dalle', async (req, res, next) => {
      res.status(200).json({ message: 'Hello from DALL-E!' });
    } else if (req.method === 'POST') {
      try {
-      const { prompt } = req.body;
-      console.log('Prompt:', prompt);
-      const aiResponse = await openai.createImage({
-        prompt,
-        n: 1,
-        size: '512x512',
-        response_format: 'b64_json',
-      });
-      console.log('AI Response:', aiResponse.data);
-      const image = aiResponse.data.data[0].b64_json;
-
-      generateURL = image;
-
-      res.status(200).json({ photo: image });
+       const { prompt } = req.body;
+       console.log('Prompt:', prompt);
+       const aiResponse = await openai.createImage({
+         prompt,
+         n: 1,
+         size: '512x512',
+         response_format: 'b64_json',
+       });
+       console.log('AI Response:', aiResponse.data);
+       const image = aiResponse.data.data[0].b64_json;
+       generatedURL = image;
+       res.status(200).json({ photo: image });
     } catch (error) {
       console.error(error);
       res
@@ -215,6 +229,6 @@ const connectDB = (url) => {
       });
 }
 
-connectDB(Process.env.URL);
+connectDB("mongodb+srv://adigpt0022:Aaditya%4002@cluster0.phufnze.mongodb.net/?retryWrites=true&w=majority");
 
 app.listen(4000);

@@ -1,5 +1,5 @@
 import {Link} from "react-router-dom";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect} from "react";
 import {UserContext} from "./UserContext";
 
 export default function Header() {
@@ -12,7 +12,8 @@ export default function Header() {
         setUserInfo(userInfo);
       });
     });
-  }, []);
+  }, [setUserInfo]);
+
 
   function logout() {
     fetch('https://openstories.onrender.com/logout', {
@@ -30,8 +31,10 @@ export default function Header() {
       <nav>
         {username && (
           <>
-            <Link to="/create">Create new story</Link>
-            <a onClick={logout}>Logout ({username})</a>
+            <button>
+              <Link to="/create">Create new story</Link>
+            </button>
+            <button onClick={logout}>Logout ({username})</button>
           </>
         )}
         {!username && (

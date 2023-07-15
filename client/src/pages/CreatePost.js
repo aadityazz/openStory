@@ -2,6 +2,9 @@ import 'react-quill/dist/quill.snow.css';
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import Editor from "../Editor";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 export default function CreatePost() {
   const [title, setTitle] = useState('');
@@ -27,15 +30,15 @@ export default function CreatePost() {
         });
 
         const data = await response.json();
-        setGenerated(data.photo);
+        setGenerated(data.photo); // Update the state with the generated image URL
       } catch (err) {
         console.error(err);
-        alert('Failed to generate image. Please try again.');
+        toast.error('Failed to generate image. Please try again.');
       } finally {
         setGeneratingImg(false);
       }
     } else {
-      alert('Please provide a title for the prompt.');
+      toast.warn('Please provide a title for the prompt.');
     }
   };
 
@@ -53,11 +56,8 @@ export default function CreatePost() {
     formData.append('content', content);
     if (files) {
       formData.append('file', files[0]);
-    }
-
-    if (generated) {
-      setGenerated(`data:image/jpeg;base64,${generated}`);
-      formData.append('generated', generated);
+    } else if (generated) {
+      formData.append('generatedImage', generated); // Append the generated image URL as a new field in the form data
     }
 
     try {
@@ -74,6 +74,7 @@ export default function CreatePost() {
       }
     } catch (error) {
       console.error(error);
+      toast.error('Failed to create post. Please try again.');
     }
   };
 

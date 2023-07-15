@@ -8,16 +8,17 @@ export default function PostPage() {
   const [postInfo,setPostInfo] = useState(null);
   const {userInfo} = useContext(UserContext);
   const {id} = useParams();
-  useEffect(() => {
-    fetch(`https://openstories.onrender.com/post/${id}`)
-      .then(response => {
-        response.json().then(postInfo => {
-          setPostInfo(postInfo);
-        });
-      });
-  }, []);
+    useEffect(() => {
+        fetch(`https://openstories.onrender.com/post/${id}`)
+            .then(response => {
+                response.json().then(postInfo => {
+                    setPostInfo(postInfo);
+                });
+            });
+    }, [id]);
 
-  if (!postInfo) return '';
+
+    if (!postInfo) return '';
 
   return (
     <div className="post-page">
@@ -35,7 +36,7 @@ export default function PostPage() {
         </div>
       )}
       <div className="image">
-        <img src={`http://localhost:4000/${postInfo.cover}`} alt=""/>
+        <img src={`https://openstories.onrender.com/${postInfo.cover}`} alt=""/>
       </div>
       <div className="content" dangerouslySetInnerHTML={{__html:postInfo.content}} />
     </div>

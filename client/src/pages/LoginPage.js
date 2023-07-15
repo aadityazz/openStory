@@ -1,6 +1,7 @@
 import {useContext, useState} from "react";
 import {Navigate} from "react-router-dom";
 import {UserContext} from "../UserContext";
+import {toast} from "react-toastify";
 
 export default function LoginPage() {
   const [username,setUsername] = useState('');
@@ -21,7 +22,7 @@ export default function LoginPage() {
         setRedirect(true);
       });
     } else {
-      alert('wrong credentials');
+      toast.warn('wrong credentials');
     }
   }
 

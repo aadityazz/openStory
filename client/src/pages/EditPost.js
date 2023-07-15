@@ -10,7 +10,7 @@ export default function EditPost() {
   const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/post/${id}`)
+    fetch(`https://openstories.onrender.com/post/${id}`)
         .then(response => response.json())
         .then(postInfo => {
           setTitle(postInfo.title);
