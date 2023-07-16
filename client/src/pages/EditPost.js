@@ -11,7 +11,7 @@ export default function EditPost() {
   const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/post/${id}`)
+    fetch(`https://openstories.onrender.com/post/${id}`)
         .then(response => response.json())
         .then(postInfo => {
           setTitle(postInfo.title);
@@ -29,7 +29,7 @@ export default function EditPost() {
       id,
     };
     try {
-      const response = await fetch(`http://localhost:4000/post/${id}`, {
+      const response = await fetch(`https://openstories.onrender.com/post/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

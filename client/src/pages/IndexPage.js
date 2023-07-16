@@ -6,7 +6,7 @@ export default function IndexPage() {
   const [posts,setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    fetch('http://localhost:4000/post')
+    fetch('https://openstories.onrender.com/post')
         .then(response => response.json())
         .then(posts => {
           setPosts(posts);

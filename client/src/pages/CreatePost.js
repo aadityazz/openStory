@@ -20,7 +20,7 @@ export default function CreatePost() {
     if (title) {
       try {
         setGeneratingImg(true);
-        const response = await fetch('http://localhost:4000/api/v1/dalle', {
+        const response = await fetch('https://openstories.onrender.com/api/v1/dalle', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export default function CreatePost() {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/post', {
+      const response = await fetch('https://openstories.onrender.com/post', {
         method: 'POST',
         credentials: 'include',
         body: formData,
