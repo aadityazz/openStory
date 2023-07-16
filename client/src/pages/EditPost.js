@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {Navigate, useParams} from "react-router-dom";
 import Editor from '../Editor';
+import {toast, ToastContainer} from "react-toastify";
 
 export default function EditPost() {
   const { id } = useParams();
@@ -10,7 +11,7 @@ export default function EditPost() {
   const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
-    fetch(`https://openstories.onrender.com/post/${id}`)
+    fetch(`http://localhost:4000/post/${id}`)
         .then(response => response.json())
         .then(postInfo => {
           setTitle(postInfo.title);
@@ -23,13 +24,12 @@ export default function EditPost() {
   async function updatePost(ev) {
     ev.preventDefault();
     const data = {
-      title, // Add the title to the data
       summary,
       content,
       id,
     };
     try {
-      const response = await fetch(`https://openstories.onrender.com/post/${id}`, {
+      const response = await fetch(`http://localhost:4000/post/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -39,9 +39,11 @@ export default function EditPost() {
       });
       if (response.ok) {
         setRedirect(true);
+        toast.success('Post Updated!')
       }
     } catch (error) {
       console.error(error);
+      toast.error('Post is not Updated!')
     }
   }
 
@@ -56,7 +58,6 @@ export default function EditPost() {
               type="text"
               placeholder="Title"
               value={title}
-              onChange={(ev) => setTitle(ev.target.value)}
           />
           <input
               type="text"
@@ -67,6 +68,7 @@ export default function EditPost() {
           <Editor onChange={setContent} value={content} />
           <button style={{ marginTop: '5px' }}>Update post</button>
         </form>
+        <ToastContainer/>
       </div>
   );
 }

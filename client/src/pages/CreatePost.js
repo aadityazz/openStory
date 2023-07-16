@@ -2,7 +2,7 @@ import 'react-quill/dist/quill.snow.css';
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import Editor from "../Editor";
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -15,11 +15,12 @@ export default function CreatePost() {
   const [redirect, setRedirect] = useState(false);
   const [generated, setGenerated] = useState(null);
 
+
   const generateImage = async () => {
     if (title) {
       try {
         setGeneratingImg(true);
-        const response = await fetch('https://openstories.onrender.com/api/v1/dalle', {
+        const response = await fetch('http://localhost:4000/api/v1/dalle', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -38,7 +39,7 @@ export default function CreatePost() {
         setGeneratingImg(false);
       }
     } else {
-      toast.warn('Please provide a title for the prompt.');
+      toast.info('Please provide a title for the prompt.');
     }
   };
 
@@ -46,7 +47,7 @@ export default function CreatePost() {
     ev.preventDefault();
 
     if (!files && !generated) {
-      alert('Please upload a file or generate an image.');
+      toast.info('Please upload a file or generate an image.');
       return;
     }
 
@@ -61,7 +62,7 @@ export default function CreatePost() {
     }
 
     try {
-      const response = await fetch('https://openstories.onrender.com/post', {
+      const response = await fetch('http://localhost:4000/post', {
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -69,6 +70,7 @@ export default function CreatePost() {
 
       if (response.ok) {
         setRedirect(true);
+        toast.success('Post created!!!')
       } else {
         console.log('Error:', response.status);
       }
@@ -125,6 +127,7 @@ export default function CreatePost() {
 
         <Editor value={content} onChange={setContent} />
         <button style={{ marginTop: '5px' }}>Create post</button>
+        <ToastContainer/>
       </form>
   );
 }

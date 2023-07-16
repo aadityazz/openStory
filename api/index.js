@@ -6,20 +6,20 @@ const Post = require('./models/Post');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-
+const dotenv = require('dotenv');
 
 const fs = require("fs");
-const Process = require("process");
+//const Process = require("process");
 
 const { Configuration, OpenAIApi } = require('openai');
 const cloudinary = require('cloudinary').v2;
 
-require('dotenv').config();
+dotenv.config();
 
 cloudinary.config({
-  cloud_name: Process.env.CLOUD_NAME ,
-  api_key: Process.env.API_KEY ,
-  api_secret: Process.env.API_SECRET ,
+  cloud_name: 'dusy3wmg5' ,
+  api_key: '557815154645179' ,
+  api_secret:  'owA9nn6eX22bn5bhZUIT7k1uBAE' ,
 });
 
 
@@ -45,16 +45,16 @@ const uploadMiddleware = multer({
 
 
 const salt = bcrypt.genSaltSync(10);
-const secret = Process.env.SECRET;
+const secret = "asdfe45we45w345wegw345werjktjwertkj";
 
 const app = express();
 
-app.use(cors({ credentials: true, origin: 'https://open-stories-fte-demo.netlify.app/' }));
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(cookieParser());
 
 const configuration = new Configuration({
-  apiKey: Process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
@@ -78,9 +78,16 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const userDoc = await User.findOne({ username });
+
+  if (!userDoc) {
+    // User not found
+    return res.status(400).json('User not found');
+  }
+
   const passOk = bcrypt.compareSync(password, userDoc.password);
+
   if (passOk) {
-    // logged in
+    // Password is correct, generate and set JWT token as a cookie
     jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
       if (err) throw err;
       res.cookie('token', token).json({
@@ -89,9 +96,11 @@ app.post('/login', async (req, res) => {
       });
     });
   } else {
-    res.status(400).json('wrong credentials');
+    // Password is incorrect
+    res.status(400).json('Wrong credentials');
   }
 });
+
 
 app.get('/profile', (req, res) => {
   const { token } = req.cookies;
@@ -155,7 +164,7 @@ app.put('/post/:id', async (req, res) => {
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, async (err, info) => {
       if (err) throw err;
-      const { id } = req.params; // Get the post ID from the URL parameter
+      const { id } = req.id; // Get the post ID from the URL parameter
       const { summary, content } = req.body;
       const postDoc = await Post.findById(id);
       const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
